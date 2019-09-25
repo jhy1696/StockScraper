@@ -12,8 +12,8 @@ def getExpectEPS(codeNumber):
     EPS = cell_strong_list[18].text.strip().replace(",", "") # cell_strong 리스트 중 18번째 값이 EPS 이다.
 
     companyName = bs_obj.find("div", {"class" : "wrap_company"}).find_next("h2").text
-    print(companyName)
-    print("EPS")
+    print(companyName, end = ' ')
+    print("EPS : ", end = '')
     print(EPS)
     return EPS
 
@@ -26,8 +26,8 @@ def getLastEPS(codeNumber):
     lastEPS = th_list[2].text.strip().replace(",", "")
 
     companyName = bs_obj.find("div", {"class" : "wrap_company"}).find_next("h2").text
-    print(companyName)
-    print("last EPS")
+    print(len(companyName) * ' ', end = '')
+    print("last EPS : ", end = '')
     print(lastEPS)
     return lastEPS
 
@@ -42,8 +42,8 @@ def getFiveYearPER(codeNumber):
 
     companyName = bs_obj.find("span", {"class" : "name"}).text
 
-    print(companyName)
-    print("5년 PER")
+    print(len(companyName) * ' ', end = '')
+    print("5년 PER : ", end = '')
     print(fiveYearPER)
     return fiveYearPER
 
@@ -53,15 +53,15 @@ def getReasonablePriceByPER(codeNumber):
     fiveYearPER = getFiveYearPER(codeNumber)
     companyName = getCompanyName(codeNumber)
 
-    print(companyName)
-    print("적정 주가 : ")
-    print(float(lastEPS) * float(fiveYearPER))
-    print("~")
-    print(float(expectEPS) * float(fiveYearPER))
-    print("20% 더 싼 가격 : ")
-    print(float(lastEPS) * float(fiveYearPER) * 0.8)
-    print("~")
-    print(float(expectEPS) * float(fiveYearPER) * 0.8)
+    print(len(companyName) * ' ', end = '')
+    print("적정 주가 : ", end = '')
+    print(round(float(lastEPS) * float(fiveYearPER)), end = '')
+    print("~", end = '')
+    print(round(float(expectEPS) * float(fiveYearPER)), end = ' ')
+    print("20% 더 싼 가격 : ", end = '')
+    print(round(float(lastEPS) * float(fiveYearPER) * 0.8), end = '')
+    print("~", end = '')
+    print(round(float(expectEPS) * float(fiveYearPER) * 0.8))
 
 
 def getCompanyName(codeNumber):
