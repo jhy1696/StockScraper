@@ -10,11 +10,13 @@ def getExpectEPS(codeNumber):
 
     cell_strong_list = bs_obj.find_all("td", {"class": "cell_strong"}) # td 태그 중 class가 cell_strong 인 것들을 모두 찾는다
     EPS = cell_strong_list[18].text.strip().replace(",", "") # cell_strong 리스트 중 18번째 값이 EPS 이다.
-
-    companyName = bs_obj.find("div", {"class" : "wrap_company"}).find_next("h2").text
-    # print(companyName, end = ' ')
-    print("예상 EPS :",EPS)
-    return EPS
+    if EPS == "":
+        lastEPS = getLastEPS(codeNumber)
+        print("올해 예상 EPS가 없음, 작년 EPS 로 대체 : ", lastEPS)
+        return lastEPS
+    else:
+        print("예상 EPS :",EPS)
+        return EPS
 
 def getLastEPS(codeNumber):
     url = "https://finance.naver.com/item/main.nhn?code=" + codeNumber
