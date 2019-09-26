@@ -12,9 +12,8 @@ def getExpectEPS(codeNumber):
     EPS = cell_strong_list[18].text.strip().replace(",", "") # cell_strong 리스트 중 18번째 값이 EPS 이다.
 
     companyName = bs_obj.find("div", {"class" : "wrap_company"}).find_next("h2").text
-    print(companyName, end = ' ')
-    print("EPS : ", end = '')
-    print(EPS)
+    # print(companyName, end = ' ')
+    print("예상 EPS :",EPS)
     return EPS
 
 def getLastEPS(codeNumber):
@@ -26,9 +25,8 @@ def getLastEPS(codeNumber):
     lastEPS = th_list[2].text.strip().replace(",", "")
 
     companyName = bs_obj.find("div", {"class" : "wrap_company"}).find_next("h2").text
-    print(len(companyName) * ' ', end = '')
-    print("last EPS : ", end = '')
-    print(lastEPS)
+    # print(len(companyName) * ' ', end = '')
+    print("지난해 EPS :", lastEPS)
     return lastEPS
 
 def getFiveYearPER(codeNumber):
@@ -42,27 +40,22 @@ def getFiveYearPER(codeNumber):
 
     companyName = bs_obj.find("span", {"class" : "name"}).text
 
-    print(len(companyName) * ' ', end = '')
-    print("5년 PER : ", end = '')
-    print(fiveYearPER)
+    # print(len(companyName) * ' ', end = '')
+    print("5년 평균 PER :", fiveYearPER)
     return fiveYearPER
 
 def getReasonablePriceByPER(codeNumber):
+    companyName = getCompanyName(codeNumber)
+    print("[ PER을 이용한", companyName, "(", codeNumber, ")의 적정가격 구하기 ]")
+
     expectEPS = getExpectEPS(codeNumber)
     lastEPS = getLastEPS(codeNumber)
     fiveYearPER = getFiveYearPER(codeNumber)
-    companyName = getCompanyName(codeNumber)
+    nowPrice = getNowPrice(codeNumber)
 
-    print(len(companyName) * ' ', end = '')
-    print("적정 주가 : ", end = '')
-    print(round(float(lastEPS) * float(fiveYearPER)), end = '')
-    print("~", end = '')
-    print(round(float(expectEPS) * float(fiveYearPER)), end = ' ')
-    print("20% 더 싼 가격 : ", end = '')
-    print(round(float(lastEPS) * float(fiveYearPER) * 0.8), end = '')
-    print("~", end = '')
-    print(round(float(expectEPS) * float(fiveYearPER) * 0.8))
-
+    print("적정 주가 :", round(float(lastEPS) * float(fiveYearPER)), "~", round(float(expectEPS) * float(fiveYearPER)))
+    print("20% 더 싼 가격 :", round(float(lastEPS) * float(fiveYearPER) * 0.8), "~", round(float(expectEPS) * float(fiveYearPER) * 0.8))
+    print("현재 가격 :", nowPrice)
 
 def getCompanyName(codeNumber):
     url = "https://finance.naver.com/item/main.nhn?code=" + codeNumber
@@ -70,6 +63,15 @@ def getCompanyName(codeNumber):
     bs_obj = BeautifulSoup(result.content, "html.parser")
     companyName = bs_obj.find("div", {"class" : "wrap_company"}).find_next("h2").text
     return companyName
+
+def getNowPrice(codeNumber):
+    url = "https://finance.naver.com/item/main.nhn?code=" + codeNumber
+    result = requests.get(url)
+    bs_obj = BeautifulSoup(result.content, "html.parser")
+    no_today = bs_obj.find("p", {"class": "no_today"}) # 태그 p, 속성값 no_today 찾기
+    blind = no_today.find("span", {"class": "blind"}) # 태그 span, 속성값 blind 찾기
+    nowPrice = blind.text
+    return nowPrice
 
 
 if len(sys.argv)-1 <= 1:
