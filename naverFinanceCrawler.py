@@ -36,7 +36,7 @@ def getFiveYearPER(codeNumber):
 
     fiveYearSummary = bs_obj.find("table", {"summary": "5년치 주요 가치지표"}) # td 태그 중 class가 cell_strong 인 것들을 모두 찾는다
     td_list = fiveYearSummary.find_all("td")
-    fiveYearPER = td_list[0].text
+    fiveYearPER = td_list[0].text.replace(",", "")
 
     companyName = bs_obj.find("span", {"class" : "name"}).text
 
