@@ -2,6 +2,15 @@
 
 import requests, sys
 from bs4 import BeautifulSoup
+import pandas as pd
+
+def getCurrentBPS(codeNumber) :
+    code_df_naver = pd.read_html('https://finance.naver.com/item/main.nhn?code=' + codeNumber)
+    return code_df_naver[3].values[11][9]
+
+def getFiveYearPBR(codeNumber) :
+    code_df_itooza = pd.read_html('http://search.itooza.com/search.htm?seName=' + codeNumber)
+    return code_df_itooza[1]["5년PBR"].values[0]
 
 def getExpectEPS(codeNumber):
     url = "https://finance.naver.com/item/main.nhn?code=" + codeNumber
@@ -35,8 +44,10 @@ def getFiveYearPER(codeNumber):
     url = "http://search.itooza.com/search.htm?seName=" + codeNumber
     result = requests.get(url)
     bs_obj = BeautifulSoup(result.content, "html.parser")
-
-    fiveYearSummary = bs_obj.find("table", {"summary": "5년치 주요 가치지표"}) # td 태그 중 class가 cell_strong 인 것들을 모두 찾는다
+    
+    # 아래꺼 잘 되던 코드인데 왜 안될까..
+    # fiveYearSummary = bs_obj.find("table", {"summary" : "5년치 주요 가치지표"})
+    fiveYearSummary = bs_obj.find("div", {"class" : "item-data2"})
     td_list = fiveYearSummary.find_all("td")
     fiveYearPER = td_list[0].text.replace(",", "")
 
@@ -45,19 +56,6 @@ def getFiveYearPER(codeNumber):
     # print(len(companyName) * ' ', end = '')
     print("5년 평균 PER :", fiveYearPER)
     return fiveYearPER
-
-def getReasonablePriceByPER(codeNumber):
-    companyName = getCompanyName(codeNumber)
-    print("[ PER을 이용한", companyName, "(", codeNumber, ")의 적정가격 구하기 ]")
-
-    expectEPS = getExpectEPS(codeNumber)
-    lastEPS = getLastEPS(codeNumber)
-    fiveYearPER = getFiveYearPER(codeNumber)
-    nowPrice = getNowPrice(codeNumber)
-
-    print("적정 주가 :", round(float(lastEPS) * float(fiveYearPER)), "~", round(float(expectEPS) * float(fiveYearPER)))
-    print("20% 더 싼 가격 :", round(float(lastEPS) * float(fiveYearPER) * 0.8), "~", round(float(expectEPS) * float(fiveYearPER) * 0.8))
-    print("현재 가격 :", nowPrice)
 
 def getCompanyName(codeNumber):
     url = "https://finance.naver.com/item/main.nhn?code=" + codeNumber
@@ -74,17 +72,3 @@ def getNowPrice(codeNumber):
     blind = no_today.find("span", {"class": "blind"}) # 태그 span, 속성값 blind 찾기
     nowPrice = blind.text
     return nowPrice
-
-
-if len(sys.argv)-1 <= 1:
-    print("python naverFinanceCrawler getExpectEPS 123456")
-elif sys.argv[1] == "getExpectEPS":
-    getExpectEPS(sys.argv[2])
-elif sys.argv[1] == "getFiveYearPER":
-    getFiveYearPER(sys.argv[2])
-elif sys.argv[1] == "getLastEPS":
-    getLastEPS(sys.argv[2])
-elif sys.argv[1] == "getReasonablePriceByPER":
-    getReasonablePriceByPER(sys.argv[2])    
-else:
-    print("wrong parameter!") 
